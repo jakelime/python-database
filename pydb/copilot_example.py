@@ -7,13 +7,17 @@ from sqlalchemy.orm import Session, relationship, sessionmaker
 Base = declarative_base()
 engine = create_engine("sqlite://", echo=True)
 
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     name = Column(String)
     fullname = Column(String)
     nickname = Column(String)
-    addresses = relationship("Address", back_populates="user", cascade="all, delete, delete-orphan")
+    addresses = relationship(
+        "Address", back_populates="user", cascade="all, delete, delete-orphan"
+    )
+
 
 class Address(Base):
     __tablename__ = "addresses"
@@ -22,11 +26,14 @@ class Address(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="addresses")
 
+
 PydanticUser = sqlalchemy_to_pydantic(User)
 PydanticAddress = sqlalchemy_to_pydantic(Address)
 
+
 class PydanticUserWithAddresses(PydanticUser):
     addresses: List[PydanticAddress] = []
+
 
 Base.metadata.create_all(engine)
 LocalSession = sessionmaker(bind=engine)
